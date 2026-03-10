@@ -12,6 +12,13 @@ test('1. Проверка атрибутов основной кнопки', asy
   // 4. Нажать кнопку "Переключить атрибуты"
   // 5. Проверить что атрибут data-action изменился на "cancel"
   // 6. Проверить что атрибут title изменился на "Отмена действия"
+
+  const button = page.getByText('Отправить');
+  await expect(button).toHaveAttribute('data-action', 'submit');
+  await expect(button).toHaveAttribute('title', 'Основная кнопка');
+  await page.getByText('Переключить атрибуты').click();
+  await expect(button).toHaveAttribute('data-action', 'cancel')
+  await expect(button).toHaveAttribute('title', 'Отмена действия')
 });
 
 test('2. Проверка отключения кнопки', async ({ page }) => {
@@ -22,6 +29,14 @@ test('2. Проверка отключения кнопки', async ({ page }) =
   // 4. Проверить что значение атрибута disabled равно пустой строке
   // 5. Еще раз нажать "Отключить кнопку"
   // 6. Проверить что атрибут disabled отсутствует
+
+  await expect(page.getByText('Отправить')).not.toHaveAttribute('disabled', '');
+
+  await page.getByText('Отключить кнопку').click();
+  await expect(page.getByText('Отправить')).toHaveAttribute('disabled', '');
+
+  await page.getByText('Отключить кнопку').click();
+  await expect(page.getByText('Отправить')).not.toHaveAttribute('disabled', '');
 });
 
 test('3. Проверка атрибутов изображения', async ({ page }) => {
@@ -30,6 +45,11 @@ test('3. Проверка атрибутов изображения', async ({ p
   // 2. Проверить что оно имеет src="user.jpg"
   // 3. Проверить что оно имеет alt="Аватар пользователя"
   // 4. Проверить что оно имеет width="200"
+
+  const alt1 = page.getByAltText('Аватар пользователя');
+  await expect(alt1).toHaveAttribute('src', 'user.jpg');
+  await expect(alt1).toHaveAttribute('alt','Аватар пользователя');
+  await expect(alt1).toHaveAttribute('width', '200')
 });
 
 test('4. Проверка атрибутов формы', async ({ page }) => {
@@ -41,6 +61,15 @@ test('4. Проверка атрибутов формы', async ({ page }) => {
   // 3. Нажать кнопку "Активировать email"
   // 4. Проверить что поле "Email" больше не имеет атрибута disabled
   // 5. Проверить что placeholder изменился на "Введите ваш email"
+
+  const userName = page.locator('#username');
+  await expect(userName).toHaveAttribute('required', '');
+  await expect(userName).toHaveAttribute('minlength', '3');
+
+  await expect(page.locator('#email')).toHaveAttribute('disabled', '');
+  await page.locator('#enable-email').click();
+  await expect(page.locator('#email')).not.toHaveAttribute('disabled', '');
+  await expect(page.locator('#email')).toHaveAttribute('placeholder', 'Введите ваш email');
 });
 
 test('5. Проверка data-атрибутов', async ({ page }) => {
@@ -55,4 +84,17 @@ test('5. Проверка data-атрибутов', async ({ page }) => {
   // 5. Проверить что data-user-id изменился (не равен "12345")
   // 6. Еще раз нажать кнопку
   // 7. Проверить что data-visible снова "true"
+
+  const cont = page.getByText('Контейнер с data-атрибутами');
+  await expect(cont).toHaveAttribute('data-role', 'container');
+  await expect(cont).toHaveAttribute('data-visible', 'true');
+  await expect(cont).toHaveAttribute('data-user-id', '12345');
+
+  await page.locator('#update-data').click();
+
+  await expect(cont).toHaveAttribute('data-visible', 'false');
+  await expect(cont).not.toHaveAttribute('data-user-id', '12345');
+    
+  await page.locator('#update-data').click();
+  await expect(cont).toHaveAttribute('data-visible', 'true');
 });
